@@ -49,7 +49,7 @@ typedef struct{
 
 const uint32_t ID_SIZE = size_of_attribute(Row,id);
 const uint32_t USERNAME_SIZE = size_of_attribute(Row,username);
-const uint32_t EMAIL_SIZE = size_of_attribute(Row, username);
+const uint32_t EMAIL_SIZE = size_of_attribute(Row, email);
 const uint32_t ID_OFFSET = 0;
 const uint32_t USERNAME_OFFSET = ID_OFFSET + ID_SIZE;
 const uint32_t EMAIL_OFFSET = USERNAME_OFFSET + USERNAME_SIZE;
@@ -91,8 +91,10 @@ void* row_slot(Table* table,uint32_t row_num){
         // Allocate memory only when we try to access page
         page = table->pages[page_num] = malloc(PAGE_SIZE);
     }
+    // printf("page number is %u, row number is %u page address is %p\n",page_num,row_num,table->pages[page_num]);
     uint32_t row_offset = row_num % ROWS_PER_PAGE;
     uint32_t byte_offset = row_offset * ROW_SIZE;
+    // printf("returning address for insert or extract with row offset = %u, byte offset = %u, main offset is %p\n",row_offset,byte_offset,page+byte_offset);
     return page + byte_offset;
 }
 
@@ -101,6 +103,8 @@ Table* new_table(){
     table->num_rows = 0;
     for(uint32_t i=0; i<TABLE_MAX_PAGES; i++){
         table->pages[i] = NULL;
+        // printf("pages[%u] = %p\n",i,table->pages[i]);
+        // printf("pages[%u] = %s\n",i,table->pages[i]==NULL ? "NULL" : "NOT NULL");
     }
     return table;
 }
@@ -219,6 +223,7 @@ ExecuteResult execute_statement(Statement* statement, Table* table){
 int main(int argc,char* argv[]){
     Table* table = new_table();
     InputBuffer* input_buffer = new_input_buffer();
+    // printf("%d\n",TABLE_MAX_ROWS);
     while(true){
         print_prompt();
         read_input(input_buffer);
